@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مخزن الأكواد الشخصي 🔐</title>
+    <title>مخزن الأكواد السحابي 🔐</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #1a1a1a; --accent: #007bff; --bg: #f4f7f6; }
@@ -14,13 +14,13 @@
         header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
         .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
         .add-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 30px; }
-        textarea { width: 100%; height: 150px; padding: 15px; border: 1px solid #eee; border-radius: 10px; background: #fafafa; font-family: monospace; resize: vertical; box-sizing: border-box; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 1px solid #eee; border-radius: 10px; background: #fafafa; font-family: monospace; resize: vertical; box-sizing: border-box; font-size: 14px; }
         .btn-post { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
         .code-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #f0f0f0; }
         .card-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #999; margin-bottom: 10px; }
         .code-display { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 10px; overflow-x: auto; direction: ltr; text-align: left; position: relative; }
         pre { margin: 0; white-space: pre-wrap; font-family: 'Consolas', monospace; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .copy-btn { background: rgba(0,123,255,0.1); color: #007bff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
         #toast { visibility: hidden; background: #333; color: white; padding: 10px 25px; border-radius: 50px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 3000; }
         #toast.show { visibility: visible; animation: fade 2s; }
         @keyframes fade { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
@@ -30,96 +30,127 @@
 
     <div id="lock-screen">
         <div class="lock-box">
-            <h2 style="margin:0; color:#333">دخول خاص 🔒</h2>
+            <h2 style="margin:0; color:#333">دخول آمن 🔒</h2>
+            <p style="color: #666; font-size: 14px;">أدخل كلمة السر للوصول لأكوادك</p>
             <input type="password" id="pass-field" placeholder="كلمة السر">
             <button onclick="unlock()" class="btn-post">فتح المخزن</button>
         </div>
     </div>
 
-    <header><h1>مخزن الأكواد الشخصي ☁️</h1></header>
+    <header><h1>مخزن الأكواد السحابي ☁️</h1></header>
 
     <div class="container">
         <div class="add-card">
-            <textarea id="code-input" placeholder="ألصق الكود الجديد هنا..."></textarea>
-            <button class="btn-post" id="save-btn" onclick="saveCode()">إضافة إلى السحابة الخاصّة 🚀</button>
+            <textarea id="code-input" placeholder="ألصق الكود البرمجي هنا..."></textarea>
+            <button class="btn-post" id="save-btn" onclick="saveCode()">حفظ في السحابة 🚀</button>
         </div>
+
         <div id="codes-container"></div>
     </div>
 
     <div id="toast">تم النسخ! ✅</div>
 
 <script>
-    // --- استبدل هذه البيانات ببياناتك من صفحة API ---
-    const PROJECT_URL = "xkjlalkpgoyyfjdcfpfz.supabase.co"; 
+    // --- بيانات الربط (تم استخراجها من صورك) ---
+    const PROJECT_URL = "https://xkjlalkpgoyyfjdcfpfz.supabase.co"; 
     const PROJECT_KEY = "sb_publishable_W9GVRJn6g_eKMbw1Az6EYQ_rLxGufEV";
-    // ----------------------------------------------
+    // ------------------------------------------
 
     const supabaseClient = supabase.createClient(PROJECT_URL, PROJECT_KEY);
     const ADMIN_PASS = "admin1990";
 
+    // دالة الدخول
     function unlock() {
         if (document.getElementById('pass-field').value === ADMIN_PASS) {
             document.getElementById('lock-screen').style.display = 'none';
-            fetchCodes();
-        } else { alert("كلمة السر خاطئة!"); }
+            fetchCodes(); // جلب البيانات عند الدخول
+        } else {
+            alert("كلمة السر خاطئة!");
+        }
     }
 
+    // جلب الأكواد من Supabase
     async function fetchCodes() {
-        // نستخدم 'Codes' بحرف كبير كما في صورتك السابقة
-        const { data, error } = await supabaseClient.from('Codes').select('*').order('created_at', { ascending: false });
-        if (!error) render(data);
-        else console.error("Error fetching:", error);
+        const { data, error } = await supabaseClient
+            .from('Codes')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (!error) {
+            render(data);
+        } else {
+            console.error("خطأ في الجلب:", error);
+        }
     }
 
+    // حفظ كود جديد
     async function saveCode() {
-        const content = document.getElementById('code-input').value.trim();
-        if (!content) return;
+        const contentVal = document.getElementById('code-input').value.trim();
+        if (!contentVal) return;
 
         const btn = document.getElementById('save-btn');
         btn.disabled = true;
+        btn.innerText = "جاري الحفظ...";
 
-        const { error } = await supabaseClient.from('Codes').insert([{ content }]);
+        // ملاحظة: نستخدم 'Content' بحرف كبير ليتطابق مع صورة جدولك
+        const { error } = await supabaseClient
+            .from('Codes')
+            .insert([{ Content: contentVal }]);
         
         if (!error) {
             document.getElementById('code-input').value = "";
-            fetchCodes();
-            showToast("تم الحفظ في حسابك الخاص!");
+            await fetchCodes();
+            showToast("تم الحفظ بنجاح!");
         } else {
-            alert("فشل الحفظ. تأكد من وجود عمود باسم content في الجدول.");
+            alert("فشل الحفظ: تأكد من إعدادات السياسات (Policies)");
             console.error(error);
         }
         btn.disabled = false;
+        btn.innerText = "حفظ في السحابة 🚀";
     }
 
+    // عرض الأكواد في الصفحة
     function render(list) {
         const container = document.getElementById('codes-container');
-        container.innerHTML = list.length ? "" : "<p style='text-align:center; color:#999'>لا توجد أكواد محفوظة بعد.</p>";
+        container.innerHTML = list.length ? "" : "<p style='text-align:center; color:#999'>المخزن فارغ حالياً.</p>";
+        
         list.forEach((item, i) => {
             const date = new Date(item.created_at).toLocaleString('ar-EG');
             const card = document.createElement('div');
             card.className = 'code-card';
             card.innerHTML = `
-                <div class="card-meta"><span>📅 ${date}</span><button class="copy-btn" onclick="copyIt('c-${i}')">نسخ</button></div>
-                <div class="code-display"><pre id="c-${i}">${escapeHtml(item.content)}</pre></div>
+                <div class="card-meta">
+                    <span>📅 ${date}</span>
+                    <button class="copy-btn" onclick="copyIt('c-${i}')">نسخ الكود</button>
+                </div>
+                <div class="code-display">
+                    <pre id="c-${i}">${escapeHtml(item.Content)}</pre>
+                </div>
             `;
             container.appendChild(card);
         });
     }
 
+    // دالة النسخ
     function copyIt(id) {
-        navigator.clipboard.writeText(document.getElementById(id).innerText);
-        showToast("تم النسخ!");
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+        showToast("تم نسخ الكود للمحفظة!");
     }
 
+    // إشعار صغير
     function showToast(m) {
         const t = document.getElementById('toast');
-        t.innerText = m; t.className = "show";
+        t.innerText = m;
+        t.className = "show";
         setTimeout(() => t.className = "", 2000);
     }
 
+    // حماية من الأكواد الخبيثة عند العرض
     function escapeHtml(t) {
         const d = document.createElement('div');
-        d.innerText = t; return d.innerHTML;
+        d.innerText = t;
+        return d.innerHTML;
     }
 </script>
 </body>
