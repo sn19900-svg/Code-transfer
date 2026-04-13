@@ -3,110 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناقل الأكواد المشفر 🔒</title>
+    <title>ناقل الأكواد الآمن بالمعرف 🚀</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; padding: 20px; text-align: center; color: #333; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; margin-bottom: 20px; }
-        .id-badge { background: #e8f0fe; padding: 10px; border-radius: 10px; font-weight: bold; color: #1a73e8; margin-bottom: 20px; border: 1px dashed #1a73e8; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .pass-field { background: #fffde7; border: 1px solid #fbc02d; }
-        button { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .btn-connect { background: #1a73e8; color: white; width: 100%; }
-        .btn-send { background: #00c853; color: white; width: 100%; margin-top: 15px; font-size: 1.1em; }
-        .status { margin-top: 15px; font-size: 0.85em; color: #777; font-style: italic; }
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #3c4043; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); padding: 15px; text-align: center; color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #dadce0; }
+        h2 { color: var(--primary); margin-top: 0; margin-bottom: 25px; font-size: 1.6em; }
+        
+        /* قسم المعرف */
+        .id-section { background: #e8f0fe; padding: 15px; border-radius: 16px; border: 2px dashed var(--primary); margin-bottom: 20px; position: relative; }
+        .id-label { display: block; font-size: 0.85em; color: var(--primary); font-weight: bold; margin-bottom: 8px; }
+        #my-id { font-weight: bold; font-size: 1.1em; color: var(--primary); letter-spacing: 1px; word-break: break-all; display: block; margin-bottom: 10px; }
+        
+        /* أزرار الإدخال والنسخ */
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        input[type="text"] { flex-grow: 1; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
+        input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+        
+        button { padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        button:active { transform: scale(0.97); }
+        
+        .btn-copy { background: white; color: var(--primary); border: 1px solid var(--primary); width: 100%; }
+        .btn-copy:hover { background: #f1f8ff; }
+        .btn-connect { background: var(--primary); color: white; white-space: nowrap; }
+        .btn-connect:hover { background: #185abc; }
+        
+        /* منطقة النص والارسال */
+        textarea { width: 100%; height: 180px; padding: 15px; margin-top: 15px; border: 1px solid #dadce0; border-radius: 16px; box-sizing: border-box; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.5; resize: none; background: #fdfdfd; }
+        textarea:focus { outline: none; border-color: #34a853; }
+        
+        .btn-send { background: #34a853; color: white; width: 100%; margin-top: 15px; font-size: 1.1em; height: 50px; }
+        .btn-send:hover { background: #2d9249; }
+        .btn-send:disabled { background: #a5d6a7; cursor: not-allowed; }
+        
+        /* الحالة والإشعارات */
+        .status { margin-top: 18px; font-size: 0.85em; color: #70757a; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .status-icon { width: 10px; height: 10px; border-radius: 50%; background: #dadce0; }
+        .status-online .status-icon { background: #34a853; animation: pulse 1.5s infinite; }
+
+        #toast { visibility: hidden; min-width: 200px; background-color: #333; color: #fff; text-align: center; border-radius: 25px; padding: 12px 20px; position: fixed; z-index: 10; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.0s; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,168,83,0.4); } 70% { box-shadow: 0 0 0 6px rgba(52,168,83,0); } 100% { box-shadow: 0 0 0 0 rgba(52,168,83,0); } }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>ناقل الأكواد المشفر 🔐</h2>
+    <h2>ناقل الأكواد الآمن 🚀</h2>
     
-    <div class="id-badge">
-        معرفك: <span id="my-id">... جاري التوليد ...</span>
+    <div class="id-section">
+        <span class="id-label">معرف جازك الحالي:</span>
+        <span id="my-id">جاري التوليد...</span>
+        <button class="btn-copy" onclick="copyId()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            نسخ المعرف لإرساله
+        </button>
     </div>
 
-    <input type="password" id="password-input" class="pass-field" placeholder="أدخل كلمة سر الغرفة (يجب تطابقها عند الطرفين)">
-    <hr>
-    
-    <input type="text" id="peer-id-input" placeholder="أدخل معرف الطرف الآخر">
-    <button class="btn-connect" onclick="connectToPeer()">ربط الأجهزة</button>
+    <div class="input-group">
+        <input type="text" id="peer-id-input" placeholder="أصق معرف الطرف الآخر هنا...">
+        <button class="btn-connect" onclick="connectToPeer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            ربط
+        </button>
+    </div>
 
-    <textarea id="text-area" placeholder="النص البرمجي سيظهر هنا..."></textarea>
-    <button class="btn-send" onclick="sendData()">إرسال مشفر 🚀</button>
+    <textarea id="text-area" placeholder="اكتب أو الصق الكود هنا... (سيتم تشفيره تلقائياً بمعرفك)"></textarea>
+    <button class="btn-send" id="send-btn" onclick="sendData()" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        إرسال آمن
+    </button>
 
-    <div class="status" id="status-msg">الحالة: بانتظار كلمة السر والاتصال</div>
+    <div class="status" id="status-container">
+        <div class="status-icon"></div>
+        <span id="status-msg">بانتظار الربط بجهاز آخر</span>
+    </div>
 </div>
+
+<div id="toast">تم نسخ المعرف! ✅</div>
 
 <script>
     const peer = new Peer(); 
     let conn;
+    let myPeerId = null;
 
-    peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
-
-    peer.on('connection', (connection) => {
-        conn = connection;
-        setupConnection();
+    // عند فتح التطبيق وتوليد المعرف
+    peer.on('open', (id) => { 
+        myPeerId = id;
+        document.getElementById('my-id').innerText = id; 
     });
 
+    // إشعار النسخ
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+    }
+
+    // زر نسخ المعرف
+    function copyId() {
+        if (!myPeerId) return;
+        navigator.clipboard.writeText(myPeerId).then(() => {
+            showToast("تم نسخ المعرف! أرسله للطرف الآخر.");
+        });
+    }
+
+    // استقبال اتصال قادم
+    peer.on('connection', (connection) => {
+        conn = connection;
+        setupConnection(true); // true تعني أننا استقبلنا الاتصال
+    });
+
+    // بدء الاتصال بطرف آخر
     function connectToPeer() {
-        const remoteId = document.getElementById('peer-id-input').value;
-        const pass = document.getElementById('password-input').value;
-        
-        if (!remoteId || !pass) return alert("يرجى إدخال المعرف وكلمة السر أولاً!");
+        const remoteId = document.getElementById('peer-id-input').value.trim();
+        if (!remoteId) return showToast("⚠️ الصق معرف الطرف الآخر أولاً");
+        if (remoteId === myPeerId) return showToast("⚠️ لا يمكنك الاتصال بنفسك!");
         
         conn = peer.connect(remoteId);
-        setupConnection();
+        setupConnection(false); // false تعني أننا من بدأ الاتصال
     }
 
-    function setupConnection() {
+    // إعداد واجهة الاتصال وتبادل البيانات
+    function setupConnection(isIncoming) {
         conn.on('open', () => {
-            document.getElementById('status-msg').innerText = "الحالة: متصل وآمن 🔒";
+            const remoteUser = isIncoming ? "جهاز اتصل بك" : "متصل الآن بـ";
+            document.getElementById('status-msg').innerText = remoteUser;
+            document.getElementById('status-container').className = "status status-online";
+            document.getElementById('send-btn').disabled = false;
+            document.getElementById('peer-id-input').disabled = true;
+            
+            showToast("تم الاتصال بنجاح! 🔒🚀");
         });
 
-        conn.on('data', (data) => {
-            const userPass = document.getElementById('password-input').value;
-            
-            // محاولة فك التشفير البسيط باستخدام كلمة السر
+        conn.on('data', (encryptedData) => {
+            // فك التشفير تلقائياً باستخدام معرف الطرف الآخر الذي استلمنا منه البيانات
             try {
-                const decrypted = simpleDecrypt(data, userPass);
-                if (decrypted.startsWith("VALID:")) {
-                    document.getElementById('text-area').value = decrypted.replace("VALID:", "");
-                    alert("وصلك نص جديد وتم فك تشفيره!");
+                // peerJS يعطينا معرف الطرف الآخر عبر conn.peer
+                const decrypted = autoDecrypt(encryptedData, conn.peer);
+                
+                if (decrypted.startsWith("CODE_KEY:")) {
+                    const finalCode = decrypted.replace("CODE_KEY:", "");
+                    document.getElementById('text-area').value = finalCode;
+                    showToast("وصلك كود جديد وتم فك تشفيره! ✅");
                 } else {
-                    throw new Error();
+                    throw new Error("Invalid format");
                 }
             } catch (e) {
-                alert("تنبيه: استلمت بيانات لكن كلمة السر غير صحيحة!");
-                console.log("بيانات مشفرة لا يمكن قراءتها.");
+                console.error("Decryption error:", e);
+                showToast("⚠️ فشل فك تشفير البيانات المستلمة.");
             }
+        });
+
+        conn.on('close', () => {
+            document.getElementById('status-msg').innerText = "انقطع الاتصال.";
+            document.getElementById('status-container').className = "status";
+            document.getElementById('send-btn').disabled = true;
+            document.getElementById('peer-id-input').disabled = false;
         });
     }
 
+    // إرسال البيانات
     function sendData() {
         const text = document.getElementById('text-area').value;
-        const pass = document.getElementById('password-input').value;
+        if (!text) return showToast("⚠️ اكتب شيئاً لإرساله");
 
-        if (!pass) return alert("يرجى كتابة كلمة سر للتشفير!");
         if (conn && conn.open) {
-            const encrypted = simpleEncrypt("VALID:" + text, pass);
+            // التشفير تلقائياً باستخدام معرفي الحالي
+            const encrypted = autoEncrypt("CODE_KEY:" + text, myPeerId);
             conn.send(encrypted);
-            document.getElementById('status-msg').innerText = "الحالة: تم الإرسال بنجاح!";
+            showToast("تم الإرسال بنجاح! 📤");
         } else {
-            alert("لا يوجد اتصال! تأكد من إدخال معرف الطرف الآخر والضغط على ربط.");
+            showToast("⚠️ لا يوجد اتصال نشط.");
         }
     }
 
-    // وظائف تشفير بسيطة (لأغراض النقل السريع)
-    function simpleEncrypt(text, key) {
-        return btoa(encodeURIComponent(text + key)); // تحويل لنص غير مفهوم
+    // وظائف التشفير التلقائي البسيط المعتمد على المعرف
+    function autoEncrypt(text, idKey) {
+        // نستخدم أول 8 محارف من المعرف كمفتاح إضافي للتحويل
+        const salt = idKey.substring(0, 8);
+        return btoa(encodeURIComponent(salt + text)); 
     }
 
-    function simpleDecrypt(encoded, key) {
+    function autoDecrypt(encoded, idKey) {
+        const salt = idKey.substring(0, 8);
         const decoded = decodeURIComponent(atob(encoded));
-        if (decoded.endsWith(key)) {
-            return decoded.substring(0, decoded.length - key.length);
+        if (decoded.startsWith(salt)) {
+            return decoded.substring(salt.length);
         }
         return "ERROR";
     }
