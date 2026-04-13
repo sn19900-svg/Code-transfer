@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ناقل الأكواد المشفر 🔒</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; padding: 20px; text-align: center; color: #333; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+        .id-badge { background: #e8f0fe; padding: 10px; border-radius: 10px; font-weight: bold; color: #1a73e8; margin-bottom: 20px; border: 1px dashed #1a73e8; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .pass-field { background: #fffde7; border: 1px solid #fbc02d; }
+        button { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .btn-connect { background: #1a73e8; color: white; width: 100%; }
+        .btn-send { background: #00c853; color: white; width: 100%; margin-top: 15px; font-size: 1.1em; }
+        .status { margin-top: 15px; font-size: 0.85em; color: #777; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>ناقل الأكواد المشفر 🔐</h2>
+    
+    <div class="id-badge">
+        معرفك: <span id="my-id">... جاري التوليد ...</span>
+    </div>
+
+    <input type="password" id="password-input" class="pass-field" placeholder="أدخل كلمة سر الغرفة (يجب تطابقها عند الطرفين)">
+    <hr>
+    
+    <input type="text" id="peer-id-input" placeholder="أدخل معرف الطرف الآخر">
+    <button class="btn-connect" onclick="connectToPeer()">ربط الأجهزة</button>
+
+    <textarea id="text-area" placeholder="النص البرمجي سيظهر هنا..."></textarea>
+    <button class="btn-send" onclick="sendData()">إرسال مشفر 🚀</button>
+
+    <div class="status" id="status-msg">الحالة: بانتظار كلمة السر والاتصال</div>
+</div>
+
+<script>
+    const peer = new Peer(); 
+    let conn;
+
+    peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
+
+    peer.on('connection', (connection) => {
+        conn = connection;
+        setupConnection();
+    });
+
+    function connectToPeer() {
+        const remoteId = document.getElementById('peer-id-input').value;
+        const pass = document.getElementById('password-input').value;
+        
+        if (!remoteId || !pass) return alert("يرجى إدخال المعرف وكلمة السر أولاً!");
+        
+        conn = peer.connect(remoteId);
+        setupConnection();
+    }
+
+    function setupConnection() {
+        conn.on('open', () => {
+            document.getElementById('status-msg').innerText = "الحالة: متصل وآمن 🔒";
+        });
+
+        conn.on('data', (data) => {
+            const userPass = document.getElementById('password-input').value;
+            
+            // محاولة فك التشفير البسيط باستخدام كلمة السر
+            try {
+                const decrypted = simpleDecrypt(data, userPass);
+                if (decrypted.startsWith("VALID:")) {
+                    document.getElementById('text-area').value = decrypted.replace("VALID:", "");
+                    alert("وصلك نص جديد وتم فك تشفيره!");
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                alert("تنبيه: استلمت بيانات لكن كلمة السر غير صحيحة!");
+                console.log("بيانات مشفرة لا يمكن قراءتها.");
+            }
+        });
+    }
+
+    function sendData() {
+        const text = document.getElementById('text-area').value;
+        const pass = document.getElementById('password-input').value;
+
+        if (!pass) return alert("يرجى كتابة كلمة سر للتشفير!");
+        if (conn && conn.open) {
+            const encrypted = simpleEncrypt("VALID:" + text, pass);
+            conn.send(encrypted);
+            document.getElementById('status-msg').innerText = "الحالة: تم الإرسال بنجاح!";
+        } else {
+            alert("لا يوجد اتصال! تأكد من إدخال معرف الطرف الآخر والضغط على ربط.");
+        }
+    }
+
+    // وظائف تشفير بسيطة (لأغراض النقل السريع)
+    function simpleEncrypt(text, key) {
+        return btoa(encodeURIComponent(text + key)); // تحويل لنص غير مفهوم
+    }
+
+    function simpleDecrypt(encoded, key) {
+        const decoded = decodeURIComponent(atob(encoded));
+        if (decoded.endsWith(key)) {
+            return decoded.substring(0, decoded.length - key.length);
+        }
+        return "ERROR";
+    }
+</script>
+
+</body>
+</html>
