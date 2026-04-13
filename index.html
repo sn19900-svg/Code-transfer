@@ -3,202 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناقل الأكواد الآمن بالمعرف 🚀</title>
+    <title>دردشة الأكواد الفورية 💬</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #3c4043; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); padding: 15px; text-align: center; color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; background: white; padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #dadce0; }
-        h2 { color: var(--primary); margin-top: 0; margin-bottom: 25px; font-size: 1.6em; }
+        :root { --primary: #1a73e8; --bg: #f0f2f5; --me-bg: #dcf8c6; --peer-bg: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; }
         
-        /* قسم المعرف */
-        .id-section { background: #e8f0fe; padding: 15px; border-radius: 16px; border: 2px dashed var(--primary); margin-bottom: 20px; position: relative; }
-        .id-label { display: block; font-size: 0.85em; color: var(--primary); font-weight: bold; margin-bottom: 8px; }
-        #my-id { font-weight: bold; font-size: 1.1em; color: var(--primary); letter-spacing: 1px; word-break: break-all; display: block; margin-bottom: 10px; }
-        
-        /* أزرار الإدخال والنسخ */
-        .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
-        input[type="text"] { flex-grow: 1; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
-        input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
-        
-        button { padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        button:active { transform: scale(0.97); }
-        
-        .btn-copy { background: white; color: var(--primary); border: 1px solid var(--primary); width: 100%; }
-        .btn-copy:hover { background: #f1f8ff; }
-        .btn-connect { background: var(--primary); color: white; white-space: nowrap; }
-        .btn-connect:hover { background: #185abc; }
-        
-        /* منطقة النص والارسال */
-        textarea { width: 100%; height: 180px; padding: 15px; margin-top: 15px; border: 1px solid #dadce0; border-radius: 16px; box-sizing: border-box; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.5; resize: none; background: #fdfdfd; }
-        textarea:focus { outline: none; border-color: #34a853; }
-        
-        .btn-send { background: #34a853; color: white; width: 100%; margin-top: 15px; font-size: 1.1em; height: 50px; }
-        .btn-send:hover { background: #2d9249; }
-        .btn-send:disabled { background: #a5d6a7; cursor: not-allowed; }
-        
-        /* الحالة والإشعارات */
-        .status { margin-top: 18px; font-size: 0.85em; color: #70757a; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .status-icon { width: 10px; height: 10px; border-radius: 50%; background: #dadce0; }
-        .status-online .status-icon { background: #34a853; animation: pulse 1.5s infinite; }
+        /* الهيدر */
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .my-id-label { font-size: 0.8em; opacity: 0.9; }
+        #my-id { font-weight: bold; cursor: pointer; text-decoration: underline; }
 
-        #toast { visibility: hidden; min-width: 200px; background-color: #333; color: #fff; text-align: center; border-radius: 25px; padding: 12px 20px; position: fixed; z-index: 10; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.0s; }
-        
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,168,83,0.4); } 70% { box-shadow: 0 0 0 6px rgba(52,168,83,0); } 100% { box-shadow: 0 0 0 0 rgba(52,168,83,0); } }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        /* منطقة الرسائل */
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 85%; padding: 10px 15px; border-radius: 15px; position: relative; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: var(--me-bg); border-bottom-left-radius: 2px; }
+        .msg.peer { align-self: flex-start; background: var(--peer-bg); border-bottom-right-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+        /* حاوية الكود داخل الشات */
+        .code-container { background: #282c34; color: #abb2bf; padding: 10px; border-radius: 8px; margin-top: 5px; font-family: monospace; position: relative; overflow-x: auto; text-align: left; direction: ltr; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.2); color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .copy-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* منطقة الإدخال السفلي */
+        .input-area { background: white; padding: 10px; display: flex; gap: 8px; align-items: center; border-top: 1px solid #ddd; }
+        input[type="text"], textarea { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; outline: none; font-size: 15px; }
+        .btn-send { background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-send:disabled { background: #ccc; }
+
+        /* نافذة الربط الأولية */
+        #setup-overlay { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .setup-card { width: 100%; max-width: 350px; text-align: center; }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 15px; border-radius: 20px; font-size: 13px; visibility: hidden; z-index: 1000; }
+        #toast.show { visibility: visible; animation: fade 2.5s; }
+        @keyframes fade { 0%, 100% { opacity: 0; } 10%, 90% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>ناقل الأكواد الآمن 🚀</h2>
-    
-    <div class="id-section">
-        <span class="id-label">معرف جازك الحالي:</span>
-        <span id="my-id">جاري التوليد...</span>
-        <button class="btn-copy" onclick="copyId()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            نسخ المعرف لإرساله
+    <div id="setup-overlay">
+        <div class="setup-card">
+            <h2>مرحباً بك في شات الأكواد 👋</h2>
+            <p class="my-id-label">معرفك الخاص (اضغط للنسخ):</p>
+            <h3 id="my-id-display" onclick="copyMyId()">... جاري التوليد ...</h3>
+            <hr>
+            <input type="text" id="peer-id-input" placeholder="أدخل معرف الطرف الآخر...">
+            <button onclick="connectToPeer()" style="width: 100%; margin-top: 10px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold;">دخول الشات المباشر</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div id="connection-status">بانتظار الطرف الآخر...</div>
+        <small>معرفك: <span id="header-my-id" onclick="copyMyId()">-</span></small>
+    </div>
+
+    <div id="chat-box">
+        </div>
+
+    <div class="input-area">
+        <textarea id="msg-input" placeholder="اكتب رسالة أو كود..." rows="1"></textarea>
+        <button id="send-btn" class="btn-send" onclick="sendMessage()" disabled>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
         </button>
     </div>
 
-    <div class="input-group">
-        <input type="text" id="peer-id-input" placeholder="أصق معرف الطرف الآخر هنا...">
-        <button class="btn-connect" onclick="connectToPeer()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            ربط
-        </button>
-    </div>
-
-    <textarea id="text-area" placeholder="اكتب أو الصق الكود هنا... (سيتم تشفيره تلقائياً بمعرفك)"></textarea>
-    <button class="btn-send" id="send-btn" onclick="sendData()" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        إرسال آمن
-    </button>
-
-    <div class="status" id="status-container">
-        <div class="status-icon"></div>
-        <span id="status-msg">بانتظار الربط بجهاز آخر</span>
-    </div>
-</div>
-
-<div id="toast">تم نسخ المعرف! ✅</div>
+    <div id="toast">تم النسخ! ✅</div>
 
 <script>
-    const peer = new Peer(); 
+    const peer = new Peer();
     let conn;
-    let myPeerId = null;
+    let myId = "";
 
-    // عند فتح التطبيق وتوليد المعرف
-    peer.on('open', (id) => { 
-        myPeerId = id;
-        document.getElementById('my-id').innerText = id; 
+    peer.on('open', id => {
+        myId = id;
+        document.getElementById('my-id-display').innerText = id;
+        document.getElementById('header-my-id').innerText = id;
     });
 
-    // إشعار النسخ
-    function showToast(message) {
-        const toast = document.getElementById("toast");
-        toast.innerText = message;
-        toast.className = "show";
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+    function copyMyId() {
+        navigator.clipboard.writeText(myId);
+        showToast("تم نسخ معرفك! أرسله للطرف الآخر.");
     }
 
-    // زر نسخ المعرف
-    function copyId() {
-        if (!myPeerId) return;
-        navigator.clipboard.writeText(myPeerId).then(() => {
-            showToast("تم نسخ المعرف! أرسله للطرف الآخر.");
-        });
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.className = "show";
+        setTimeout(() => t.className = "", 2500);
     }
 
-    // استقبال اتصال قادم
-    peer.on('connection', (connection) => {
-        conn = connection;
-        setupConnection(true); // true تعني أننا استقبلنا الاتصال
-    });
-
-    // بدء الاتصال بطرف آخر
     function connectToPeer() {
         const remoteId = document.getElementById('peer-id-input').value.trim();
-        if (!remoteId) return showToast("⚠️ الصق معرف الطرف الآخر أولاً");
-        if (remoteId === myPeerId) return showToast("⚠️ لا يمكنك الاتصال بنفسك!");
-        
+        if(!remoteId) return alert("أدخل المعرف أولاً");
         conn = peer.connect(remoteId);
-        setupConnection(false); // false تعني أننا من بدأ الاتصال
+        setupConnection();
     }
 
-    // إعداد واجهة الاتصال وتبادل البيانات
-    function setupConnection(isIncoming) {
+    peer.on('connection', c => {
+        conn = c;
+        setupConnection();
+    });
+
+    function setupConnection() {
         conn.on('open', () => {
-            const remoteUser = isIncoming ? "جهاز اتصل بك" : "متصل الآن بـ";
-            document.getElementById('status-msg').innerText = remoteUser;
-            document.getElementById('status-container').className = "status status-online";
+            document.getElementById('setup-overlay').style.display = 'none';
+            document.getElementById('connection-status').innerText = "متصل الآن 🟢";
             document.getElementById('send-btn').disabled = false;
-            document.getElementById('peer-id-input').disabled = true;
-            
-            showToast("تم الاتصال بنجاح! 🔒🚀");
         });
 
-        conn.on('data', (encryptedData) => {
-            // فك التشفير تلقائياً باستخدام معرف الطرف الآخر الذي استلمنا منه البيانات
-            try {
-                // peerJS يعطينا معرف الطرف الآخر عبر conn.peer
-                const decrypted = autoDecrypt(encryptedData, conn.peer);
-                
-                if (decrypted.startsWith("CODE_KEY:")) {
-                    const finalCode = decrypted.replace("CODE_KEY:", "");
-                    document.getElementById('text-area').value = finalCode;
-                    showToast("وصلك كود جديد وتم فك تشفيره! ✅");
-                } else {
-                    throw new Error("Invalid format");
-                }
-            } catch (e) {
-                console.error("Decryption error:", e);
-                showToast("⚠️ فشل فك تشفير البيانات المستلمة.");
-            }
-        });
-
-        conn.on('close', () => {
-            document.getElementById('status-msg').innerText = "انقطع الاتصال.";
-            document.getElementById('status-container').className = "status";
-            document.getElementById('send-btn').disabled = true;
-            document.getElementById('peer-id-input').disabled = false;
+        conn.on('data', data => {
+            appendMessage('peer', data);
         });
     }
 
-    // إرسال البيانات
-    function sendData() {
-        const text = document.getElementById('text-area').value;
-        if (!text) return showToast("⚠️ اكتب شيئاً لإرساله");
+    function sendMessage() {
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        if(!text || !conn) return;
 
-        if (conn && conn.open) {
-            // التشفير تلقائياً باستخدام معرفي الحالي
-            const encrypted = autoEncrypt("CODE_KEY:" + text, myPeerId);
-            conn.send(encrypted);
-            showToast("تم الإرسال بنجاح! 📤");
+        conn.send(text);
+        appendMessage('me', text);
+        input.value = "";
+    }
+
+    function appendMessage(sender, text) {
+        const box = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${sender}`;
+
+        // التحقق إذا كان النص عبارة عن كود (يحتوي على أسطر أو علامات برمجية)
+        if (text.includes('\n') || text.includes('{') || text.includes('function') || text.includes('<')) {
+            const codeId = 'code-' + Date.now();
+            msgDiv.innerHTML = `
+                <div class="code-container">
+                    <button class="copy-btn" onclick="copyCode('${codeId}')">نسخ الكود</button>
+                    <pre id="${codeId}">${escapeHtml(text)}</pre>
+                </div>
+            `;
         } else {
-            showToast("⚠️ لا يوجد اتصال نشط.");
+            msgDiv.innerText = text;
         }
+
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
     }
 
-    // وظائف التشفير التلقائي البسيط المعتمد على المعرف
-    function autoEncrypt(text, idKey) {
-        // نستخدم أول 8 محارف من المعرف كمفتاح إضافي للتحويل
-        const salt = idKey.substring(0, 8);
-        return btoa(encodeURIComponent(salt + text)); 
+    function copyCode(id) {
+        const code = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(code);
+        showToast("تم نسخ الكود بنجاح! ✅");
     }
 
-    function autoDecrypt(encoded, idKey) {
-        const salt = idKey.substring(0, 8);
-        const decoded = decodeURIComponent(atob(encoded));
-        if (decoded.startsWith(salt)) {
-            return decoded.substring(salt.length);
-        }
-        return "ERROR";
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
     }
 </script>
-
 </body>
 </html>
